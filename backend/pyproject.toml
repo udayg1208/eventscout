@@ -1,0 +1,14 @@
+[tool.ruff]
+target-version = "py311"
+line-length = 100
+extend-exclude = [".venv", "spikes"]
+
+[tool.ruff.lint]
+# pycodestyle (E,W), pyflakes (F), isort (I), pyupgrade (UP), bugbear (B)
+select = ["E", "W", "F", "I", "UP", "B"]
+
+[tool.ruff.lint.per-file-ignores]
+# Broad `except Exception` in resilience boundaries is intentional.
+"app/parsers/gemini.py" = ["BLE001"]
+"app/providers/composite.py" = ["BLE001"]
+"app/services/search_service.py" = ["BLE001"]

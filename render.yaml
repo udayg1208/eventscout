@@ -1,0 +1,26 @@
+# Render Blueprint for the Event Discovery backend.
+# Deploy: Render Dashboard → New → Blueprint → pick this repo.
+# Single-process on purpose: the app uses in-memory caches/metrics, so one uvicorn
+# process keeps them coherent (do not add workers).
+services:
+  - type: web
+    name: event-discovery-api
+    runtime: python
+    plan: free
+    rootDir: backend
+    buildCommand: "pip install -r requirements.txt"
+    startCommand: "uvicorn app.main:app --host 0.0.0.0 --port $PORT"
+    healthCheckPath: /health
+    autoDeploy: true
+    envVars:
+      - key: PYTHON_VERSION
+        value: "3.11.9"
+      - key: ENVIRONMENT
+        value: production
+      - key: GEMINI_MODEL
+        value: gemini-flash-lite-latest
+      # Secrets / environment-specific — set in the Render dashboard, not in git:
+      - key: GEMINI_API_KEY
+        sync: false
+      - key: CORS_ORIGINS
+        sync: false # set to your Vercel URL, e.g. https://<app>.vercel.app
