@@ -9,7 +9,11 @@ services:
     plan: free
     rootDir: backend
     buildCommand: "pip install -r requirements.txt"
-    startCommand: "uvicorn app.main:app --host 0.0.0.0 --port $PORT"
+    # Foolproof: the entrypoint binds 0.0.0.0:$PORT in code (app/main.py __main__), so the
+    # process is always reachable by Render's edge router. Equivalent to
+    # `uvicorn app.main:app --host 0.0.0.0 --port $PORT`, but cannot be misconfigured into
+    # uvicorn's 127.0.0.1 default (which passes localhost health checks yet hangs externally).
+    startCommand: "python -m app.main"
     healthCheckPath: /health
     autoDeploy: true
     envVars:

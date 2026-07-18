@@ -52,3 +52,15 @@ def create_app() -> FastAPI:
 
 
 app = create_app()
+
+
+if __name__ == "__main__":
+    # Foolproof production entrypoint: `python -m app.main`.
+    # Binds 0.0.0.0:$PORT in code so the process is reachable by a platform's edge router.
+    # (uvicorn's CLI default host is 127.0.0.1 — a localhost health probe can reach it, but
+    # an external router cannot, which looks like "healthy in logs, hangs from outside".)
+    import os
+
+    import uvicorn
+
+    uvicorn.run(app, host="0.0.0.0", port=int(os.environ.get("PORT", "8000")))
