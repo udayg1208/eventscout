@@ -1,44 +1,45 @@
-"use client";
+import Link from "next/link";
 
-import { useEffect, useState } from "react";
+import type { EventDTO } from "@/types/platform";
+import { encodeEventKey } from "@/utils/eventKey";
+import { formatEventDate, formatWhere } from "@/utils/format";
 
-import { EventCard } from "@/components/EventCard";
-import type { EventItem } from "@/lib/types";
+import { SaveButton } from "./SaveButton";
+import { CategoryBadge, PriceBadge } from "./ui/Badge";
+import { CalendarIcon, PinIcon } from "./ui/icons";
 
-const PAGE_SIZE = 12;
-
-/**
- * The backend returns all ranked matches at once, so pagination is client-side:
- * reveal in batches of PAGE_SIZE.
- */
-export function EventList({ events }: { events: EventItem[] }) {
-  const [visible, setVisible] = useState(PAGE_SIZE);
-
-  // Reset the window whenever a new result set arrives.
-  useEffect(() => setVisible(PAGE_SIZE), [events]);
-
-  const shown = events.slice(0, visible);
-  const remaining = events.length - shown.length;
-
+/** Compact vertical list — used on the dashboard, saved, and recently-viewed. */
+export function EventList({ events }: { events: EventDTO[] }) {
   return (
-    <div>
-      <ul className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        {shown.map((event) => (
-          <EventCard key={`${event.provider}:${event.url}`} event={event} />
-        ))}
-      </ul>
-
-      {remaining > 0 && (
-        <div className="mt-8 flex justify-center">
-          <button
-            type="button"
-            onClick={() => setVisible((v) => v + PAGE_SIZE)}
-            className="rounded-full border border-slate-300 bg-white px-6 py-2.5 text-sm font-medium text-slate-700 transition hover:border-violet-400 hover:text-violet-700 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200 dark:hover:border-violet-500/50 dark:hover:text-violet-300"
-          >
-            Load more ({remaining} more)
-          </button>
-        </div>
-      )}
-    </div>
+    <ul className="divide-y divide-line overflow-hidden rounded-2xl border border-line bg-surface">
+      {events.map((event) => (
+        <li
+          key={event.key}
+          className="flex items-center gap-4 p-4 transition-colors hover:bg-surface-2"
+        >
+          <div className="min-w-0 flex-1">
+            <Link
+              href={`/events/${encodeEventKey(event.key)}`}
+              className="block truncate font-medium text-ink hover:text-accent"
+            >
+              {event.title}
+            </Link>
+            <div className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-muted">
+              <CategoryBadge category={event.category} />
+              <span className="flex items-center gap-1">
+                <CalendarIcon className="h-3.5 w-3.5" />
+                {formatEventDate(event.start_date, event.end_date)}
+              </span>
+              <span className="flex items-center gap-1">
+                <PinIcon className="h-3.5 w-3.5" />
+                {formatWhere(event.city, event.is_online)}
+              </span>
+              <PriceBadge isFree={event.is_free} price={event.price} />
+            </div>
+          </div>
+          <SaveButton event={event} />
+        </li>
+      ))}
+    </ul>
   );
 }

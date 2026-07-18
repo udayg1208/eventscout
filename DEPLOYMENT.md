@@ -1,5 +1,9 @@
 # Deployment Guide
 
+> **⚠️ Superseded — see [`PRODUCTION_DEPLOYMENT.md`](PRODUCTION_DEPLOYMENT.md).** This file
+> predates Phases 11A–11E; the current catalog is **1,890 events across 19 providers** (not
+> the ~168 / 2-provider figures below). The Vercel+Render steps here are still accurate.
+
 Deploy the **backend to Render** and the **frontend to Vercel**, both on free tiers.
 The app is a stable public API (backend frozen); this guide changes no code.
 

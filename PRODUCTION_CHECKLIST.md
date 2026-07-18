@@ -1,5 +1,8 @@
 # Production Checklist
 
+> **⚠️ Superseded — see [`PRODUCTION_DEPLOYMENT.md`](PRODUCTION_DEPLOYMENT.md)** for the
+> current checklist (1,890 events / 19 providers / ~1034 tests). Kept for reference.
+
 Work top to bottom. See `DEPLOYMENT.md` for the how-to.
 
 ## Pre-deploy

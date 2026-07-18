@@ -17,14 +17,22 @@ def run(coro):
     return asyncio.run(coro)
 
 
-def _event(title, *, provider, city=None, description=None, start=date(2026, 9, 1)):
+def _event(
+    title,
+    *,
+    provider,
+    city=None,
+    description=None,
+    start=date(2026, 9, 1),
+    category=EventCategory.CONFERENCE,
+):
     return Event(
         title=title,
         description=description,
         url=f"https://{provider}.example.com/{title.replace(' ', '-').lower()}",
         city=city,
         start_date=start,
-        category=EventCategory.CONFERENCE,
+        category=category,
         provider=provider,
     )
 
@@ -81,3 +89,30 @@ def test_city_is_canonicalized_in_output():
     p = StubProvider("a", [_event("AI Conf", provider="a", city="Bengaluru")])
     events = run(_composite(p).search(SearchQuery()))
     assert events[0].city == "Bangalore"  # normalized at the boundary
+
+
+# --------------------------- classification (Phase 2 #1) ---------------------------
+
+
+def test_meetup_classified_and_ai_filter_matches():
+    p = StubProvider(
+        "a",
+        [
+            _event("GenAI Builders Meetup", provider="a", category=EventCategory.MEETUP),
+            _event("Rust Bangalore Meetup", provider="a", category=EventCategory.MEETUP),
+        ],
+    )
+    # An "AI events" query (category filter would have dropped these at the provider,
+    # but the composite strips it, classifies, then filters).
+    events = run(_composite(p).search(SearchQuery(categories=[EventCategory.AI])))
+    assert [e.title for e in events] == ["GenAI Builders Meetup"]
+    assert events[0].category == EventCategory.AI
+
+
+def test_specific_category_preserved_under_ai_filter():
+    p = StubProvider("a", [_event("AI Hackathon", provider="a", category=EventCategory.HACKATHON)])
+    # AI-themed hackathon keeps its format category, so it is not an `ai` result...
+    assert run(_composite(p).search(SearchQuery(categories=[EventCategory.AI]))) == []
+    # ...but is still found by a hackathon search.
+    hack = run(_composite(p).search(SearchQuery(categories=[EventCategory.HACKATHON])))
+    assert [e.title for e in hack] == ["AI Hackathon"]

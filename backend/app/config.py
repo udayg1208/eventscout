@@ -41,6 +41,12 @@ class Settings(BaseSettings):
     # --- Cache ---
     cache_ttl_seconds: int = 300
 
+    # --- Catalog (Phase 3E: search reads from the Repository, not live providers) ---
+    catalog_db_path: str = "catalog.db"  # SQLite file for the event catalog (Postgres later)
+    provider_state_db_path: str = "provider_state.db"  # SQLite file for provider state
+    search_candidate_limit: int = 500  # bounded candidate window ranked per search
+    search_cache_ttl_seconds: int = 60  # read-path search cache TTL
+
     @field_validator("cors_origins", mode="before")
     @classmethod
     def _split_cors_origins(cls, value: object) -> object:

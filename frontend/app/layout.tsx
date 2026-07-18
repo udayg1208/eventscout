@@ -1,11 +1,13 @@
 import type { Metadata, Viewport } from "next";
 
+import { AppShell } from "@/layouts/AppShell";
+
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Event Discovery — Tech & Professional Events in India",
+  title: "EventScout — Tech & Professional Events across India",
   description:
-    "Discover workshops, meetups, conferences, hackathons and webinars across India using natural language.",
+    "Discover, search, and get recommendations for workshops, meetups, conferences, hackathons, and AI events across India.",
 };
 
 export const viewport: Viewport = {
@@ -14,13 +16,17 @@ export const viewport: Viewport = {
 };
 
 // Set the theme before paint to avoid a flash of the wrong theme.
+// Default is DARK for now: with no saved preference we open in dark mode (ignoring the OS
+// setting). An explicit choice via the toggle is still respected and persisted.
 const themeScript = `
 (function () {
   try {
     var t = localStorage.getItem('theme');
-    var dark = t === 'dark' || (!t && window.matchMedia('(prefers-color-scheme: dark)').matches);
+    var dark = t ? t === 'dark' : true;
     if (dark) document.documentElement.classList.add('dark');
-  } catch (e) {}
+  } catch (e) {
+    document.documentElement.classList.add('dark');
+  }
 })();
 `;
 
@@ -34,7 +40,9 @@ export default function RootLayout({
       <head>
         <script dangerouslySetInnerHTML={{ __html: themeScript }} />
       </head>
-      <body>{children}</body>
+      <body>
+        <AppShell>{children}</AppShell>
+      </body>
     </html>
   );
 }

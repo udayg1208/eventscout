@@ -12,7 +12,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from app import __version__
-from app.api.routes import debug, events, health, search
+from app.api.routes import debug, events, health, platform, search
 from app.config import get_settings
 from app.logging_config import setup_logging
 
@@ -38,6 +38,7 @@ def create_app() -> FastAPI:
     app.include_router(health.router)
     app.include_router(search.router)
     app.include_router(events.router)
+    app.include_router(platform.router)  # Phase 6B: public Platform surface (additive)
     if not settings.is_production:
         app.include_router(debug.router)
         logger.info("Debug endpoints enabled (non-production)")

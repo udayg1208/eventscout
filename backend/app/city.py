@@ -7,6 +7,8 @@ and so a query city matches regardless of spelling.
 
 from __future__ import annotations
 
+import re
+
 # alias (casefolded) -> canonical display name
 _CANONICAL: dict[str, str] = {
     "bengaluru": "Bangalore",
@@ -43,3 +45,20 @@ def normalize_city(name: str | None) -> str | None:
     if not trimmed:
         return trimmed
     return _CANONICAL.get(trimmed.casefold(), trimmed)
+
+
+def detect_city(*texts: str | None) -> str | None:
+    """Return the first canonical city whose name appears as a whole word in any
+    of the given texts (e.g. a venue or chapter string), else None.
+
+    Used by text-oriented providers to recover a city from free-text fields.
+    Longest aliases are tried first so "New Delhi" wins over "Delhi".
+    """
+    for text in texts:
+        if not text:
+            continue
+        low = text.casefold()
+        for alias in sorted(_CANONICAL, key=len, reverse=True):
+            if re.search(rf"\b{re.escape(alias)}\b", low):
+                return _CANONICAL[alias]
+    return None

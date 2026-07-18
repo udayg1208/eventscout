@@ -1,72 +1,86 @@
-import { CategoryChip } from "@/components/CategoryChip";
-import { PriceBadge } from "@/components/PriceBadge";
-import { SourceBadge } from "@/components/SourceBadge";
-import {
-  CalendarIcon,
-  ExternalIcon,
-  GlobeIcon,
-  PinIcon,
-} from "@/components/icons";
-import { formatEventDate, formatWhere } from "@/lib/format";
-import type { EventItem } from "@/lib/types";
+"use client";
 
-export function EventCard({ event }: { event: EventItem }) {
-  const where = formatWhere(event.city, event.location, event.is_online);
+import Link from "next/link";
+import type { ReactNode } from "react";
 
+import type { EventDTO } from "@/types/platform";
+import { cn } from "@/utils/cn";
+import { encodeEventKey } from "@/utils/eventKey";
+import { formatEventDate, formatWhere, relativeStart } from "@/utils/format";
+
+import { SaveButton } from "./SaveButton";
+import { CategoryBadge, FormatBadge, PriceBadge, ProviderBadge } from "./ui/Badge";
+import { buttonClass } from "./ui/Button";
+import { Card } from "./ui/Card";
+import { CalendarIcon, ExternalIcon, PinIcon } from "./ui/icons";
+
+/** The core event tile. `children` renders an extra slot above the footer
+ * (used by RecommendationCard for its reasons). */
+export function EventCard({
+  event,
+  children,
+  className,
+}: {
+  event: EventDTO;
+  children?: ReactNode;
+  className?: string;
+}) {
+  const href = `/events/${encodeEventKey(event.key)}`;
   return (
-    <li className="animate-fade-in group flex flex-col rounded-2xl border border-slate-200 bg-white p-5 shadow-sm transition hover:-translate-y-0.5 hover:border-violet-300 hover:shadow-md dark:border-slate-800 dark:bg-slate-900 dark:hover:border-violet-500/40">
+    <Card hover className={cn("flex h-full flex-col p-5", className)}>
       <div className="mb-3 flex items-start justify-between gap-2">
-        <CategoryChip category={event.category} />
-        <SourceBadge provider={event.provider} />
+        <div className="flex flex-wrap items-center gap-1.5">
+          <CategoryBadge category={event.category} />
+          <FormatBadge isOnline={event.is_online} />
+          <PriceBadge isFree={event.is_free} price={event.price} />
+        </div>
+        <SaveButton event={event} />
       </div>
 
-      <h3 className="mb-2 text-base font-semibold leading-snug text-slate-900 dark:text-slate-100">
-        <a
-          href={event.url}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="rounded outline-none hover:text-violet-700 focus-visible:underline dark:hover:text-violet-300"
-        >
+      <h3 className="text-base font-semibold leading-snug">
+        <Link href={href} className="line-clamp-2 text-ink transition-colors hover:text-accent">
           {event.title}
-        </a>
+        </Link>
       </h3>
 
-      <dl className="mb-3 space-y-1.5 text-sm text-slate-600 dark:text-slate-400">
+      {event.description && (
+        <p className="mt-2 line-clamp-2 text-sm text-muted">{event.description}</p>
+      )}
+
+      <dl className="mt-4 space-y-1.5 text-sm text-muted">
         <div className="flex items-center gap-2">
-          <dt className="sr-only">Date</dt>
-          <CalendarIcon className="h-4 w-4 shrink-0 text-slate-400" />
-          <dd>{formatEventDate(event.start_date, event.end_date)}</dd>
+          <CalendarIcon className="h-4 w-4 shrink-0 text-faint" />
+          <span>
+            {formatEventDate(event.start_date, event.end_date)}
+            <span className="text-faint"> · {relativeStart(event.start_date)}</span>
+          </span>
         </div>
         <div className="flex items-center gap-2">
-          <dt className="sr-only">Location</dt>
-          {event.is_online ? (
-            <GlobeIcon className="h-4 w-4 shrink-0 text-slate-400" />
-          ) : (
-            <PinIcon className="h-4 w-4 shrink-0 text-slate-400" />
-          )}
-          <dd className="truncate">{where}</dd>
+          <PinIcon className="h-4 w-4 shrink-0 text-faint" />
+          <span className="truncate">{formatWhere(event.city, event.is_online)}</span>
         </div>
       </dl>
 
-      {event.description && (
-        <p className="mb-4 line-clamp-3 text-sm text-slate-500 dark:text-slate-400">
-          {event.description}
-        </p>
-      )}
+      {children}
 
-      <div className="mt-auto flex items-center justify-between gap-3 pt-2">
-        <PriceBadge isFree={event.is_free} price={event.price} />
-        <a
-          href={event.url}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="inline-flex items-center gap-1.5 rounded-lg bg-violet-600 px-3 py-1.5 text-sm font-medium text-white transition hover:bg-violet-700 focus-visible:ring-2 focus-visible:ring-violet-500 focus-visible:ring-offset-2 dark:ring-offset-slate-900"
-          aria-label={`Register for ${event.title} (opens in a new tab)`}
-        >
-          Register
-          <ExternalIcon className="h-3.5 w-3.5" />
-        </a>
+      <div className="mt-auto flex items-center justify-between gap-2 border-t border-line pt-3">
+        <ProviderBadge provider={event.provider} />
+        <div className="flex items-center gap-1">
+          <Link href={href} className={buttonClass("ghost", "sm")}>
+            Details
+          </Link>
+          <a
+            href={event.url}
+            target="_blank"
+            rel="noopener noreferrer"
+            className={buttonClass("secondary", "sm")}
+            aria-label={`Register for ${event.title} (opens in a new tab)`}
+          >
+            Register
+            <ExternalIcon className="h-3.5 w-3.5" />
+          </a>
+        </div>
       </div>
-    </li>
+    </Card>
   );
 }

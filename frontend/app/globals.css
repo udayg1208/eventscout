@@ -2,11 +2,41 @@
 @tailwind components;
 @tailwind utilities;
 
+/* ------------------------------------------------------------------ *
+ * Design tokens — a single semantic palette that flips with the theme.
+ * Components reference these via Tailwind colors (bg-surface, text-muted,
+ * border, bg-accent, …) so dark mode needs no per-component `dark:` noise.
+ * ------------------------------------------------------------------ */
 :root {
   color-scheme: light;
+  --bg: 248 250 252;
+  --surface: 255 255 255;
+  --surface-2: 241 245 249;
+  --border: 226 232 240;
+  --border-strong: 203 213 225;
+  --text: 15 23 42;
+  --muted: 100 116 139;
+  --faint: 148 163 184;
+  --accent: 124 58 237;
+  --accent-hover: 109 40 217;
+  --accent-soft: 243 240 255;
+  --accent-fg: 255 255 255;
 }
+
 :root.dark {
   color-scheme: dark;
+  --bg: 2 6 23;
+  --surface: 15 23 42;
+  --surface-2: 30 41 59;
+  --border: 30 41 59;
+  --border-strong: 51 65 85;
+  --text: 241 245 249;
+  --muted: 148 163 184;
+  --faint: 100 116 139;
+  --accent: 139 92 246;
+  --accent-hover: 167 139 250;
+  --accent-soft: 30 27 75;
+  --accent-fg: 255 255 255;
 }
 
 html {
@@ -14,17 +44,38 @@ html {
 }
 
 body {
-  @apply bg-slate-50 text-slate-900 antialiased dark:bg-slate-950 dark:text-slate-100;
+  @apply bg-bg text-ink antialiased;
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto,
+    "Helvetica Neue", Arial, sans-serif;
+  font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+  text-rendering: optimizeLegibility;
+}
+
+h1, h2, h3, h4 {
+  letter-spacing: -0.02em;
 }
 
 /* Consistent, visible keyboard focus for accessibility. */
 :focus-visible {
-  @apply outline-none ring-2 ring-violet-500 ring-offset-2 ring-offset-slate-50 dark:ring-offset-slate-950;
+  @apply outline-none ring-2 ring-accent ring-offset-2 ring-offset-bg;
 }
 
-.line-clamp-3 {
-  display: -webkit-box;
-  -webkit-line-clamp: 3;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
+/* Carousel rows hide their scrollbar but stay scrollable/keyboard-accessible. */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
 }

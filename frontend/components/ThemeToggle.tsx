@@ -1,7 +1,8 @@
 "use client";
 
-import { MoonIcon, SunIcon } from "@/components/icons";
 import { useTheme } from "@/hooks/useTheme";
+
+import { MoonIcon, SunIcon } from "./ui/icons";
 
 export function ThemeToggle() {
   const { theme, toggle } = useTheme();
@@ -13,7 +14,7 @@ export function ThemeToggle() {
       onClick={toggle}
       aria-label={isDark ? "Switch to light mode" : "Switch to dark mode"}
       aria-pressed={isDark}
-      className="rounded-lg border border-slate-200 bg-white p-2 text-slate-600 transition hover:text-violet-600 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-300 dark:hover:text-violet-300"
+      className="inline-flex h-9 w-9 items-center justify-center rounded-lg border border-line bg-surface text-muted transition-colors hover:text-ink"
     >
       {isDark ? <SunIcon className="h-5 w-5" /> : <MoonIcon className="h-5 w-5" />}
     </button>

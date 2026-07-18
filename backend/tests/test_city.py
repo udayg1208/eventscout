@@ -6,7 +6,7 @@ from datetime import date
 
 import pytest
 
-from app.city import normalize_city
+from app.city import detect_city, normalize_city
 from app.models.event import Event, EventCategory
 from app.models.search import SearchQuery
 from app.providers.filtering import matches
@@ -46,3 +46,18 @@ def test_filter_matches_across_city_aliases():
     assert matches(_event("Bengaluru"), SearchQuery(city="Bangalore")) is True
     assert matches(_event("Bangalore"), SearchQuery(city="Bengaluru")) is True
     assert matches(_event("Mumbai"), SearchQuery(city="Bangalore")) is False
+
+
+@pytest.mark.parametrize(
+    "texts, expected",
+    [
+        (("Bangalore",), "Bangalore"),
+        (("Held in New Delhi",), "Delhi"),  # longest alias wins
+        (("FOSS United Bengaluru",), "Bangalore"),  # normalized
+        (("Coimbatore Institute of Technology",), None),  # not a known city
+        (("Asap room", None), None),
+        ((), None),
+    ],
+)
+def test_detect_city(texts, expected):
+    assert detect_city(*texts) == expected

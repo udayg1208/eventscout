@@ -4,9 +4,9 @@ import { useCallback, useEffect, useState } from "react";
 
 type Theme = "light" | "dark";
 
-/** Dark-mode toggle. Initial theme is set pre-hydration by a script in layout. */
+/** Dark-mode toggle. Initial theme is set pre-hydration by a script in layout (dark by default). */
 export function useTheme() {
-  const [theme, setTheme] = useState<Theme>("light");
+  const [theme, setTheme] = useState<Theme>("dark");
 
   useEffect(() => {
     setTheme(
